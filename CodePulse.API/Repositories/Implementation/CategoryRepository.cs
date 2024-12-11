@@ -2,6 +2,7 @@
 using CodePulse.API.Models.Domain;
 using CodePulse.API.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
 
 namespace CodePulse.API.Repositories.Implementation
 {
@@ -29,6 +30,20 @@ namespace CodePulse.API.Repositories.Implementation
         public async Task<Category?> GetById(Guid id)
         {
             return await dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task<Category?> UpdateAsync(Category category)
+        {
+            var existingCategory = await dbContext.Categories.FirstOrDefaultAsync(x => x.Id == category.Id);
+
+            if (existingCategory != null)
+            {
+                dbContext.Entry(existingCategory).CurrentValues.SetValues(category);
+                await dbContext.SaveChangesAsync();
+                return category;
+            }
+
+            return null;
         }
     }
 }
